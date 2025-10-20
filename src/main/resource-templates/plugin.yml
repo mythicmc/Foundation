@@ -1,7 +1,6 @@
-name: TemplatePlugin
+name: Foundation
 version: "{{ version }}"
 description: "{{ description }}"
-# TODO: either this or author
-authors: []
-main: "org.mythicmc.templateplugin.bukkit.TemplatePlugin"
-# TODO: set this as needed api-version: "1.16"
+authors: [retrixe]
+main: "org.mythicmc.foundation.paper.FoundationPlugin"
+api-version: "1.20"

@@ -1,4 +1,4 @@
-package org.mythicmc.templateplugin.velocity
+package org.mythicmc.foundation.velocity
 
 import com.google.inject.Inject
 import com.velocitypowered.api.event.Subscribe
@@ -6,19 +6,20 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent
 import com.velocitypowered.api.plugin.Plugin
 import com.velocitypowered.api.plugin.annotation.DataDirectory
 import com.velocitypowered.api.proxy.ProxyServer
+import org.mythicmc.foundation.BuildMetadata
 import org.slf4j.Logger
 import java.nio.file.Path
 
 @Plugin(
-    id = "templateplugin",
-    name = "TemplatePlugin",
-    authors = [], // TODO: Set me!
+    id = "foundation",
+    name = "Foundation",
+    authors = ["retrixe"],
     version = BuildMetadata.VERSION,
     description = BuildMetadata.DESCRIPTION,
-    url = "", // TODO: Set me!
+    url = "https://github.com/mythicmc/Foundation",
     dependencies = []
 )
-class TemplatePluginKt @Inject constructor(
+class FoundationPlugin @Inject constructor(
     val server: ProxyServer,
     val logger: Logger,
     @DataDirectory val dataDirectory: Path
