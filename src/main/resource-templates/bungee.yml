@@ -1,0 +1,6 @@
+name: TemplatePlugin
+version: "{{ version }}"
+description: "{{ description }}"
+# TODO either this or author
+authors: []
+main: "org.mythicmc.templateplugin.bungee.TemplatePlugin"
