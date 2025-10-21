@@ -7,6 +7,7 @@ import com.velocitypowered.api.plugin.Plugin
 import com.velocitypowered.api.plugin.annotation.DataDirectory
 import com.velocitypowered.api.proxy.ProxyServer
 import org.mythicmc.foundation.BuildMetadata
+import org.mythicmc.foundation.platform.v0.Platform
 import org.slf4j.Logger
 import java.nio.file.Path
 
@@ -25,5 +26,9 @@ class FoundationPlugin @Inject constructor(
     @DataDirectory val dataDirectory: Path
 ) {
     @Subscribe
-    fun onProxyInitialization(event: ProxyInitializeEvent) {}
+    fun onProxyInitialization(event: ProxyInitializeEvent) {
+        org.mythicmc.foundation.platform.v0.load(
+            Platform.velocity(this, server, logger, dataDirectory)
+        )
+    }
 }
