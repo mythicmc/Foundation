@@ -1,0 +1,16 @@
+# A configurable prefix for system messages, in MiniMessage format.
+# Placeholders:
+# - <content> is a text conveying the intent of the message e.g. Info, Error, Success, Warning, etc.
+# - <prefix_color> is the colour of the prefix, typically corresponding to the message intent, e.g.
+#       red for errors, green for success, yellow for warning, etc.
+prefix: "<dark_gray>[<prefix_color>!<dark_gray>] <prefix_color><content> <dark_gray>[<prefix_color>!<dark_gray>] <reset>"
+
+# Preset values for <prefix_color> for certain types of messages, which plugins can use.
+# Note: Plugins are not required to use these colours, and may use their own.
+#
+# Colors can be names of standard Minecraft chat colors, or custom in #RRGGBB format.
+color_scheme:
+  info: aqua
+  success: green
+  warning: yellow
+  error: red
