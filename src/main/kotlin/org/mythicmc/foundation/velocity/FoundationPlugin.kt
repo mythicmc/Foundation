@@ -23,7 +23,7 @@ import java.nio.file.Path
 class FoundationPlugin @Inject constructor(
     val server: ProxyServer,
     val logger: Logger,
-    @DataDirectory val dataDirectory: Path
+    @param:DataDirectory val dataDirectory: Path
 ) {
     @Subscribe
     fun onProxyInitialization(event: ProxyInitializeEvent) {
