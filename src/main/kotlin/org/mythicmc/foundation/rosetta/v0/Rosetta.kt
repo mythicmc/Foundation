@@ -29,7 +29,7 @@ object Rosetta {
     private val COLOR_SCHEME = EnumMap<MessageType, TextColor>(MessageType::class.java)
 
     // TODO: Maybe Foundation should include Kaml/kotlinx.serialisation
-    private data class PrefixYaml(var prefix: String = "", var color_scheme: Map<String, String> = hashMapOf())
+    internal data class PrefixYaml(var prefix: String = "", var color_scheme: Map<String, String> = hashMapOf())
 
     internal fun loadPrefixYml(platform: Platform) {
         val dataFolder = platform.dataDirectory.resolve("rosetta-v0")
@@ -41,7 +41,15 @@ object Rosetta {
             Files.copy(platform.getResource("rosetta-v0/prefix.yml")!!, prefixFilePath)
         }
 
-        val parsedYaml = Yaml().loadAs(prefixFilePath.reader(), PrefixYaml::class.java)
+        val correctClassLoader = PrefixYaml::class.java.classLoader
+        val originalClassLoader = Thread.currentThread().contextClassLoader
+        val parsedYaml: PrefixYaml = try {
+            Thread.currentThread().contextClassLoader = correctClassLoader
+            Yaml().loadAs(prefixFilePath.reader(), PrefixYaml::class.java)
+        } finally {
+            Thread.currentThread().contextClassLoader = originalClassLoader
+        }
+
         PREFIX = parsedYaml.prefix
         for (type in MessageType.entries) {
             val colorName = parsedYaml.color_scheme[type.name.lowercase()] ?:
@@ -53,7 +61,7 @@ object Rosetta {
     }
 
     private fun parseColor(color: String): TextColor? =
-        NamedTextColor.NAMES.value(color.uppercase()) ?: TextColor.fromHexString(color)
+        NamedTextColor.NAMES.value(color.lowercase()) ?: TextColor.fromHexString(color)
 
     /**
      * Uses [Rosetta.prefix] to resolve Adventure MiniMessage tags in the following formats:
