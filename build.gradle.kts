@@ -3,6 +3,7 @@ import java.net.URI
 
 plugins {
     java
+    `maven-publish`
     kotlin("jvm") version "2.2.20"
     kotlin("kapt") version "2.2.20"
     id("com.gradleup.shadow") version "9.2.2"
@@ -52,7 +53,6 @@ sourceSets {
 
 tasks.getByName<ShadowJar>("shadowJar") {
     minimize()
-    archiveClassifier.set("")
     relocate("kotlin", "org.mythicmc.foundation.shadow.kotlin")
 }
 
@@ -106,4 +106,59 @@ tasks.register<Jar>("dokkaGenerateJavadocJar") {
     dependsOn(tasks.dokkaGeneratePublicationJavadoc)
     from(tasks.dokkaGeneratePublicationJavadoc.flatMap { it.outputDirectory })
     archiveClassifier.set("javadoc")
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "mythicmcReleases"
+            url = uri("https://maven.mythicmc.org/releases")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "org.mythicmc"
+            artifactId = "foundation"
+            version = project.version.toString()
+            from(components["java"])
+            artifact(tasks["dokkaGenerateHtmlJar"])
+            artifact(tasks["dokkaGenerateJavadocJar"])
+            versionMapping {
+                usage("java-api") {
+                    fromResolutionOf("runtimeClasspath")
+                }
+                usage("java-runtime") {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = project.name
+                description = project.description
+                url = "https://github.com/mythicmc/Foundation"
+                // properties = mapOf("myProp" to "value", "prop.with.dots" to "anotherValue")
+                licenses {
+                    license {
+                        name = "GPL-3.0-only"
+                        url = "https://spdx.org/licenses/GPL-3.0-only.html"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "retrixe"
+                        name = "Ibrahim Ansari"
+                        email = "ibu2@mythicmc.org"
+                    }
+                }
+                scm {
+                    connection = "scm:git:git://github.com/mythicmc/Foundation.git"
+                    developerConnection = "scm:git:ssh://github.com/mythicmc/Foundation.git"
+                    url = "https://github.com/mythicmc/Foundation/"
+                }
+            }
+        }
+    }
 }
