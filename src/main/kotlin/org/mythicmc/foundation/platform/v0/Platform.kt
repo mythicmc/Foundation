@@ -13,12 +13,14 @@ import java.nio.file.Path
  * plugins.
  *
  * This helps Foundation work correctly across Velocity and Paper while sharing a single codebase.
+ *
+ * You can get an instance of [Platform] through the functions in [Platform.Factory].
  */
 interface Platform {
     /**
-     * Functions to get instances of [Platform] for Velocity and Paper.
+     * Provides functions to get an instance of [Platform].
      */
-    companion object {
+    companion object Factory {
         /**
          * Retrieve a [Platform] instance for a Bukkit plugin.
          *

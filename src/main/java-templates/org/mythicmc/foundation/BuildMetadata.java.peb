@@ -1,6 +1,18 @@
 package org.mythicmc.foundation;
 
+/**
+ * Stores metadata about the currently loaded version of the Foundation plugin.
+ */
 public class BuildMetadata {
+    private BuildMetadata() {}
+
+    /**
+     * The currently loaded version of Foundation.
+     */
     public static final String VERSION = "{{ version }}";
+
+    /**
+     * The Foundation plugin's description.
+     */
     public static final String DESCRIPTION = "{{ description }}";
 }

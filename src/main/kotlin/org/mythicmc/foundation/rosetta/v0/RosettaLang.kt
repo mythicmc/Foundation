@@ -15,8 +15,9 @@ import kotlin.io.path.writer
 /**
  * An extensible class to handle `lang.yml` files, built using MiniMessage for formatting.
  *
- * This class works well with the rest of the rosetta-v0 module, providing the `<prefix>` tag by
- * default, resolved using [Rosetta.PREFIX_TAG_RESOLVER].
+ * This class works well with the rest of the `rosetta-v0` module. The default MiniMessage instance
+ * enables the `<prefix>` tag (resolved using [Rosetta.PrefixTagResolver]) when parsing Lang
+ * strings.
  *
  * Consuming plugins should create a singleton storing an instance of this class, to make use of it.
  *
@@ -25,7 +26,7 @@ import kotlin.io.path.writer
  * val LANG = RosettaLang(Platform.bukkit(this)) // or Platform.velocity
  * ```
  */
-class RosettaLang(val platform: Platform) {
+class RosettaLang(private val platform: Platform) {
     private val dataFolder = platform.dataDirectory
     private val defaultLangFile = platform.getResource("lang.yml")!!
 
@@ -33,7 +34,7 @@ class RosettaLang(val platform: Platform) {
     private val yaml = Yaml()
     private val miniMessage = MiniMessage.builder()
         .tags(TagResolver.standard())
-        .editTags { it.resolver(Rosetta.PREFIX_TAG_RESOLVER) }
+        .editTags { it.resolver(Rosetta.PrefixTagResolver) }
         .build()
 
     /**
