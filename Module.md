@@ -4,13 +4,15 @@ Foundation is a collection of useful tools and utilities for Paper and Velocity 
 
 # Package org.mythicmc.foundation
 
-Contains metadata classes on Foundation.
+Contains metadata about the currently loaded version of Foundation.
 
 # Package org.mythicmc.foundation.platform.v0
 
-Experimental: `platform-v0` provides a uniform API for plugins, providing functionality that works across server software like Paper or Velocity.
+`platform-v0` (unstable) provides a uniform API for plugins, providing functionality that works across server software like Paper or Velocity.
 
-Note: v0 APIs are experimental and subject to breakage or change!
+Warning: Currently, Foundation is the only intended consumer of this package. If other plugins require such functionality, we could pursue stabilising this package. 
+
+Note: v0 packages are experimental and unstable. APIs are subject to breakage, and no stability is guaranteed!
 
 # Package org.mythicmc.foundation.rosetta.v1
 
