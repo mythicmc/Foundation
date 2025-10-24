@@ -8,9 +8,9 @@ Contains metadata about the currently loaded version of Foundation.
 
 # Package org.mythicmc.foundation.platform.v0
 
-`platform-v0` (unstable) provides a uniform API for plugins, providing functionality that works across server software like Paper or Velocity.
+`platform-v0` (unstable) provides a uniform API for plugins, with functionality that works across server software like Paper and Velocity.
 
-Warning: Currently, Foundation is the only intended consumer of this package. If other plugins require such functionality, we could pursue stabilising this package. 
+Currently, Foundation is the only intended consumer of this package. If other plugins would like to make use of this package, we could pursue stabilising the API in the future. 
 
 Note: v0 packages are experimental and unstable. APIs are subject to breakage, and no stability is guaranteed!
 

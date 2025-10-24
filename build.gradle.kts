@@ -102,6 +102,12 @@ tasks.register<Jar>("dokkaGenerateHtmlJar") {
     archiveClassifier.set("html-docs")
 }
 
+tasks.register<Jar>("dokkaGenerateHtmlAsJavadocJar") {
+    dependsOn(tasks.dokkaGeneratePublicationHtml)
+    from(tasks.dokkaGeneratePublicationHtml.flatMap { it.outputDirectory })
+    archiveClassifier.set("javadoc")
+}
+
 tasks.register<Jar>("dokkaGenerateJavadocJar") {
     dependsOn(tasks.dokkaGeneratePublicationJavadoc)
     from(tasks.dokkaGeneratePublicationJavadoc.flatMap { it.outputDirectory })
@@ -126,7 +132,7 @@ publishing {
             version = project.version.toString()
             from(components["java"])
             artifact(tasks["dokkaGenerateHtmlJar"])
-            artifact(tasks["dokkaGenerateJavadocJar"])
+            artifact(tasks["dokkaGenerateHtmlAsJavadocJar"])
             versionMapping {
                 usage("java-api") {
                     fromResolutionOf("runtimeClasspath")

@@ -24,6 +24,9 @@ import kotlin.io.path.writer
  * ```
  * // Example in the main plugin class:
  * val LANG = RosettaLang(Platform.bukkit(this)) // or Platform.velocity
+ *
+ * // In `onEnable` / `onProxyInitialization` / etc:
+ * LANG.reloadLangFile()
  * ```
  */
 class RosettaLang(private val platform: Platform) {
