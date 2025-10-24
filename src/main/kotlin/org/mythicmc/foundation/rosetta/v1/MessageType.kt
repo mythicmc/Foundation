@@ -1,10 +1,10 @@
-package org.mythicmc.foundation.rosetta.v0
+package org.mythicmc.foundation.rosetta.v1
 
 /**
  * Various predefined types of system messages, used with [Rosetta] to retrieve prefixes for
  * messages, and colour schemes for such messages.
  *
- * Server owners can override the colours of these types by modifying the `rosetta-v0/prefix.yml`
+ * Server owners can override the colours of these types by modifying the `rosetta-v1/prefix.yml`
  * file in Foundation's data folder. However, the intents conveyed by the headers remain fixed.
  */
 enum class MessageType {

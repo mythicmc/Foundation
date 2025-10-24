@@ -1,4 +1,4 @@
-package org.mythicmc.foundation.rosetta.v0
+package org.mythicmc.foundation.rosetta.v1
 
 import net.kyori.adventure.pointer.Pointered
 import net.kyori.adventure.text.Component
@@ -15,7 +15,7 @@ import kotlin.io.path.writer
 /**
  * An extensible class to handle `lang.yml` files, built using MiniMessage for formatting.
  *
- * This class works well with the rest of the `rosetta-v0` module. The default MiniMessage instance
+ * This class works well with the rest of the `rosetta-v1` module. The default MiniMessage instance
  * enables the `<prefix>` tag (resolved using [Rosetta.PrefixTagResolver]) when parsing Lang
  * strings.
  *

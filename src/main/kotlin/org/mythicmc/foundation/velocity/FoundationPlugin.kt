@@ -30,6 +30,6 @@ class FoundationPlugin @Inject constructor(
         org.mythicmc.foundation.platform.v0.load(
             Platform.velocity(this, server, logger, dataDirectory)
         )
-        org.mythicmc.foundation.rosetta.v0.load()
+        org.mythicmc.foundation.rosetta.v1.load()
     }
 }

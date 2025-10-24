@@ -1,4 +1,4 @@
-package org.mythicmc.foundation.rosetta.v0
+package org.mythicmc.foundation.rosetta.v1
 
 import org.mythicmc.foundation.platform.v0.internal.FoundationPlatform
 
