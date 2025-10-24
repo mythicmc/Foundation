@@ -18,7 +18,7 @@ plugins {
 }
 
 group = "org.mythicmc"
-version = "1.0.0-alpha.0${getVersionMetadata()}"
+version = "Asimov.1${getVersionMetadata()}"
 description = "A collection of useful tools and utilities for Paper and Velocity plugins."
 
 repositories {
