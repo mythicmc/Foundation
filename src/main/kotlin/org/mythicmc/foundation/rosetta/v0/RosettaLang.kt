@@ -7,6 +7,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import org.mythicmc.foundation.platform.v0.Platform
 import org.yaml.snakeyaml.Yaml
 import java.nio.file.Files
+import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.reader
 import kotlin.io.path.writer
@@ -45,6 +46,8 @@ class RosettaLang(val platform: Platform) {
      * @throws java.io.IOException if any I/O operation fails
      */
     fun reloadLangFile() {
+        if (!dataFolder.exists())
+            dataFolder.createDirectories()
         val langFilePath = dataFolder.resolve("lang.yml")
         val langFileExists = langFilePath.exists()
         if (!langFileExists) {

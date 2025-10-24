@@ -7,8 +7,14 @@ import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.tag.Tag
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.mythicmc.foundation.platform.v0.Platform
+import org.yaml.snakeyaml.Yaml
+import java.nio.file.Files
 import java.util.EnumMap
+import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
+import kotlin.io.path.reader
 
 /**
  * Provides functions to retrieve system message prefixes, which are common to all system messages
@@ -19,6 +25,36 @@ import java.util.EnumMap
  * in the Foundation plugin's data folder.
  */
 object Rosetta {
+    private lateinit var PREFIX: String
+    private val COLOR_SCHEME = EnumMap<MessageType, TextColor>(MessageType::class.java)
+
+    // TODO: Maybe Foundation should include Kaml/kotlinx.serialisation
+    private data class PrefixYaml(var prefix: String = "", var color_scheme: Map<String, String> = hashMapOf())
+
+    internal fun loadPrefixYml(platform: Platform) {
+        val dataFolder = platform.dataDirectory.resolve("rosetta-v0")
+        if (!dataFolder.exists())
+            dataFolder.createDirectories()
+        val prefixFilePath = dataFolder.resolve("prefix.yml")
+        val prefixFileExists = prefixFilePath.exists()
+        if (!prefixFileExists) {
+            Files.copy(platform.getResource("rosetta-v0/prefix.yml")!!, prefixFilePath)
+        }
+
+        val parsedYaml = Yaml().loadAs(prefixFilePath.reader(), PrefixYaml::class.java)
+        PREFIX = parsedYaml.prefix
+        for (type in MessageType.entries) {
+            val colorName = parsedYaml.color_scheme[type.name.lowercase()] ?:
+            throw IllegalArgumentException("No color specified for `${type.name.lowercase()}` in `rosetta-v0/prefix.yml`")
+
+            COLOR_SCHEME[type] = parseColor(colorName) ?:
+            throw IllegalArgumentException("Unknown color `$colorName` specified for `${type.name.lowercase()}` in `rosetta-v0/prefix.yml`")
+        }
+    }
+
+    private fun parseColor(color: String): TextColor? =
+        NamedTextColor.NAMES.value(color.uppercase()) ?: TextColor.fromHexString(color)
+
     /**
      * Uses [Rosetta.prefix] to resolve Adventure MiniMessage tags in the following formats:
      * - `<prefix:[MessageType]>` e.g. `<prefix:info>`
@@ -47,16 +83,6 @@ object Rosetta {
         }
     } }
 
-    private lateinit var PREFIX: String
-    private val COLOR_SCHEME = EnumMap<MessageType, TextColor>(MessageType::class.java)
-
-    internal fun loadPrefixYml(platform: Platform) {
-        // FIXME: Save default prefix.yml
-    }
-
-    private fun parseColor(color: String): TextColor? =
-        NamedTextColor.NAMES.value(color.uppercase()) ?: TextColor.fromHexString(color)
-
     /**
      * Returns the color defined in the color scheme for a certain type of system message. e.g. for
      * [MessageType.ERROR], it may return a shade of red.
@@ -69,6 +95,21 @@ object Rosetta {
      */
     fun color(type: MessageType): TextColor =
         COLOR_SCHEME[type] ?: throw IllegalArgumentException("Invalid MessageType")
+
+    /**
+     * Returns the raw prefix for system messages in MiniMessage format, with none of the
+     * placeholders substituted. You typically want to use one of the [prefix] functions instead.
+     *
+     * Placeholders in the raw prefix string are:
+     * - `<prefix_content>` is a short text conveying the intent of the message e.g. Info, Error,
+     *   Success, Warning, etc.
+     * - `<prefix_color>` is the colour of the prefix, typically corresponding to the message
+     *   intent, e.g. red for errors, green for success, yellow for warning, etc.
+     *
+     * @see Rosetta
+     * @return the raw prefix in MiniMessage format
+     */
+    fun rawPrefix(): String = PREFIX
 
     /**
      * Returns a prefix for system messages, with a uniform format and color scheme for consistency
@@ -158,5 +199,86 @@ object Rosetta {
             Placeholder.styling("prefix_color", color),
             Placeholder.component("prefix_content", content))
 
-    // FIXME: legacyPrefix and rawPrefix equivalents
+    /**
+     * Returns a prefix for system messages, with a uniform format and color scheme for consistency
+     * across plugins. The prefix is returned as a string in legacy chat format, with section chars.
+     *
+     * This overload sets the text inside the prefix to the message type (e.g. `Info` for
+     * [MessageType.INFO]), and the prefix color is set according to the color scheme for the
+     * message type (e.g. `red` for errors, `yellow` for warnings, etc.)
+     *
+     * @see Rosetta
+     * @param type the type of system message
+     * @return the prefix, as a string in legacy chat format, to prepend to your system message
+     */
+    fun legacyPrefix(type: MessageType): String =
+        LegacyComponentSerializer.legacySection().serialize(prefix(type))
+
+    /**
+     * Returns a prefix for system messages, with a uniform format and color scheme for consistency
+     * across plugins. The prefix is returned as a string in legacy chat format, with section chars.
+     *
+     * This overload accepts the text within the prefix (e.g. `Info`, `Success`, `Error`, etc.) in
+     * MiniMessage format. The prefix color is set according to the color scheme for the message
+     * type (e.g. `red` for errors, `yellow` for warnings, etc.)
+     *
+     * @see Rosetta
+     * @param type the type of system message
+     * @param content text to include within the prefix, e.g. Info, in MiniMessage format
+     * @return the prefix, as a string in legacy chat format, to prepend to your system message
+     */
+    fun legacyPrefix(type: MessageType, content: String): String =
+        LegacyComponentSerializer.legacySection().serialize(prefix(type, content))
+
+    /**
+     * Returns a prefix for system messages, with a uniform format and color scheme for consistency
+     * across plugins. The prefix is returned as a string in legacy chat format, with section chars.
+     *
+     * This overload accepts the text within the prefix (e.g. `Info`, `Success`, `Error`, etc.) as
+     * a [Component]. The prefix color is set according to the color scheme for the message type
+     * (e.g. `red` for errors, `yellow` for warnings, etc.)
+     *
+     * @see Rosetta
+     * @param type the type of system message
+     * @param content text to include within the prefix, e.g. Info, as a [Component]
+     * @return the prefix, as a string in legacy chat format, to prepend to your system message
+     */
+    fun legacyPrefix(type: MessageType, content: Component): String =
+        LegacyComponentSerializer.legacySection().serialize(prefix(type, content))
+
+    /**
+     * Returns a prefix for system messages, with a uniform format and color scheme for consistency
+     * across plugins. The prefix is returned as a string in legacy chat format, with section chars.
+     *
+     * This overload accepts the text within the prefix (e.g. `Info`, `Success`, `Error`, etc.) in
+     * MiniMessage format, and the prefix color (e.g. `red` for errors, `yellow` for warnings, etc.)
+     *
+     * Note: Prefer using the [MessageType] functions over specifying your own colors, to enable
+     * consistency across all system messages on the server.
+     *
+     * @see Rosetta
+     * @param color the color of the prefix (should match the intent and content of the message)
+     * @param content text to include within the prefix, e.g. Info, in MiniMessage format
+     * @return the prefix, as a string in legacy chat format, to prepend to your system message
+     */
+    fun legacyPrefix(color: TextColor, content: String): String =
+        LegacyComponentSerializer.legacySection().serialize(prefix(color, content))
+
+    /**
+     * Returns a prefix for system messages, with a uniform format and color scheme for consistency
+     * across plugins. The prefix is returned as a string in legacy chat format, with section chars.
+     *
+     * This overload accepts the text within the prefix (e.g. `Info`, `Success`, `Error`, etc.) as
+     * a [Component], and the prefix color (e.g. `red` for errors, `yellow` for warnings, etc.)
+     *
+     * Note: Prefer using the [MessageType] functions over specifying your own colors, to enable
+     * consistency across all system messages on the server.
+     *
+     * @see Rosetta
+     * @param color the color of the prefix (should match the intent and content of the message)
+     * @param content text to include within the prefix, e.g. Info, as a [Component]
+     * @return the prefix, as a string in legacy chat format, to prepend to your system message
+     */
+    fun legacyPrefix(color: TextColor, content: Component): String =
+        LegacyComponentSerializer.legacySection().serialize(prefix(color, content))
 }
