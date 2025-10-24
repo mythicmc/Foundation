@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import java.net.URI
 
 plugins {
     java
@@ -6,6 +7,8 @@ plugins {
     kotlin("kapt") version "2.2.20"
     id("com.gradleup.shadow") version "9.2.2"
     id("net.kyori.blossom") version "2.2.0"
+    id("org.jetbrains.dokka") version "2.1.0"
+    id("org.jetbrains.dokka-javadoc") version "2.1.0"
     id("org.jetbrains.gradle.plugin.idea-ext") version "1.3" // IntelliJ + Blossom integration
     id("org.ajoberstar.grgit.service") version "5.3.3"
 }
@@ -26,6 +29,7 @@ dependencies {
 }
 
 java {
+    withSourcesJar()
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
     }
@@ -74,4 +78,32 @@ fun getVersionMetadata(): String {
     }
 
     return "+unknown"
+}
+
+dokka {
+    dokkaSourceSets.main {
+        moduleName.set("Foundation")
+        includes.from("Module.md")
+        suppressedFiles.from(
+            "src/main/kotlin/org/mythicmc/foundation/paper",
+            "src/main/kotlin/org/mythicmc/foundation/velocity"
+        )
+        sourceLink {
+            localDirectory.set(file("src/main/kotlin"))
+            remoteUrl.set(URI("https://github.com/mythicmc/Foundation/tree/master/src/main/kotlin"))
+            remoteLineSuffix.set("#L")
+        }
+    }
+}
+
+tasks.register<Jar>("dokkaGenerateHtmlJar") {
+    dependsOn(tasks.dokkaGeneratePublicationHtml)
+    from(tasks.dokkaGeneratePublicationHtml.flatMap { it.outputDirectory })
+    archiveClassifier.set("html-docs")
+}
+
+tasks.register<Jar>("dokkaGenerateJavadocJar") {
+    dependsOn(tasks.dokkaGeneratePublicationJavadoc)
+    from(tasks.dokkaGeneratePublicationJavadoc.flatMap { it.outputDirectory })
+    archiveClassifier.set("javadoc")
 }
