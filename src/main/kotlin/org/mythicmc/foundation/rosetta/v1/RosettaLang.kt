@@ -40,7 +40,12 @@ class RosettaLang(private val platform: Platform) {
     /**
      * Loads the `lang.yml` file from disk, creating the file if it does not exist.
      *
-     * It also supports upgrading lang files by adding new keys and removing old keys.
+     * It supports upgrading lang files by adding new keys if necessary, and warns server admins
+     * if older/unknown keys are present in the lang file.
+     *
+     * Currently, it does not support updating the values of existing keys. If it is necessary to
+     * overwrite the value of an existing key, it may be preferable to simply create a new key, or
+     * to implement this at the plugin-level.
      *
      * Note: This operation is not thread safe, since [RosettaLang] is backed by a [java.util.HashMap]!
      *
@@ -62,17 +67,21 @@ class RosettaLang(private val platform: Platform) {
             val defaultKeys = defaultLangMap.keys
             val storedKeys = langMap.keys
 
-            val keysToRemove = storedKeys.subtract(defaultKeys)
-            val keysToAdd = defaultKeys.subtract(storedKeys)
-            if (keysToRemove.isNotEmpty() || keysToAdd.isNotEmpty()) {
-                platform.warn("Upgrading lang.yml file...")
-                platform.warn("New keys: ${keysToAdd.joinToString(", ")}")
-                platform.warn("Removed keys: ${keysToRemove.joinToString(", ")}")
+            val unknownKeys = storedKeys.subtract(defaultKeys)
+            if (unknownKeys.isNotEmpty()) {
+                platform.warn("Unknown keys found in lang.yml file: " +
+                        "${unknownKeys.joinToString(", ")}\n" +
+                        "Please remove these keys!")
+            }
 
-                // TODO: Support lang file upgrades by accepting arrays of Strings?
-                keysToRemove.forEach { langMap.remove(it) }
-                keysToAdd.forEach { langMap[it] = defaultLangMap[it]!! }
+            // TODO: Support lang file upgrades by accepting arrays of Strings?
+            //       If the stored value matches any in the array, replace it with the latest copy.
+            //       Though, it may be more prudent for plugin developers to just create new lang keys
 
+            val newKeys = defaultKeys.subtract(storedKeys)
+            if (newKeys.isNotEmpty()) {
+                platform.warn("Adding new keys to lang.yml file: ${newKeys.joinToString(", ")}")
+                newKeys.forEach { langMap[it] = defaultLangMap[it]!! }
                 yaml.dump(langMap, langFilePath.writer())
             }
         }
