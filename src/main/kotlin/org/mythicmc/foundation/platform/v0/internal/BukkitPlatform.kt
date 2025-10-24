@@ -14,4 +14,7 @@ internal class BukkitPlatform(val plugin: JavaPlugin) : Platform {
 
     override fun info(msg: String) =
         plugin.logger.info(msg)
+
+    override fun warn(msg: String) =
+        plugin.logger.warning(msg)
 }

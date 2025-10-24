@@ -17,4 +17,7 @@ internal class VelocityPlatform(
 
     override fun info(msg: String) =
         logger.info(msg)
+
+    override fun warn(msg: String) =
+        logger.warn(msg)
 }

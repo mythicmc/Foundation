@@ -65,9 +65,9 @@ class RosettaLang(private val platform: Platform) {
             val keysToRemove = storedKeys.subtract(defaultKeys)
             val keysToAdd = defaultKeys.subtract(storedKeys)
             if (keysToRemove.isNotEmpty() || keysToAdd.isNotEmpty()) {
-                platform.info("Upgrading lang.yml file...")
-                platform.info("New keys: ${keysToAdd.joinToString(", ")}")
-                platform.info("Removed keys: ${keysToRemove.joinToString(", ")}")
+                platform.warn("Upgrading lang.yml file...")
+                platform.warn("New keys: ${keysToAdd.joinToString(", ")}")
+                platform.warn("Removed keys: ${keysToRemove.joinToString(", ")}")
 
                 // TODO: Support lang file upgrades by accepting arrays of Strings?
                 keysToRemove.forEach { langMap.remove(it) }

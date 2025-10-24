@@ -69,4 +69,11 @@ interface Platform {
      * @param msg the message string to be logged
      */
     fun info(msg: String)
+
+    /**
+     * Log a message at the WARN level.
+     *
+     * @param msg the message string to be logged
+     */
+    fun warn(msg: String)
 }
