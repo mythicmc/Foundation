@@ -1,4 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.api.internal.project.ProjectInternal
+import org.gradle.api.plugins.internal.JavaConfigurationVariantMapping
+import org.gradle.api.plugins.internal.JvmPluginsHelper
 import java.net.URI
 
 plugins {
@@ -30,6 +33,7 @@ dependencies {
 }
 
 java {
+    withDokkaJar(project, project.tasks.dokkaGeneratePublicationHtml)
     withSourcesJar()
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
@@ -102,16 +106,34 @@ tasks.register<Jar>("dokkaGenerateHtmlJar") {
     archiveClassifier.set("html-docs")
 }
 
-tasks.register<Jar>("dokkaGenerateHtmlAsJavadocJar") {
-    dependsOn(tasks.dokkaGeneratePublicationHtml)
-    from(tasks.dokkaGeneratePublicationHtml.flatMap { it.outputDirectory })
-    archiveClassifier.set("javadoc")
-}
-
 tasks.register<Jar>("dokkaGenerateJavadocJar") {
     dependsOn(tasks.dokkaGeneratePublicationJavadoc)
     from(tasks.dokkaGeneratePublicationJavadoc.flatMap { it.outputDirectory })
     archiveClassifier.set("javadoc")
+}
+
+/**
+ * Taken from: https://github.com/Kotlin/dokka/issues/558
+ * @param project [Project] this extension belongs to
+ * @param artifactTask that produces the Documentation output files
+ *
+ * @see org.gradle.api.plugins.internal.DefaultJavaPluginExtension.withJavadocJar
+ * @see org.gradle.jvm.component.internal.DefaultJvmSoftwareComponent.withJavadocJar
+ * @see org.gradle.api.plugins.jvm.internal.DefaultJvmFeature.withJavadocJar
+ */
+fun JavaPluginExtension.withDokkaJar(project: Project, artifactTask: TaskProvider<out Task>) {
+    val javadoc = this.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+    val kdocVariant = JvmPluginsHelper.createDocumentationVariantWithArtifact(
+        javadoc.javadocElementsConfigurationName,
+        null,
+        DocsType.JAVADOC,
+        emptySet(),
+        javadoc.javadocJarTaskName,
+        artifactTask,
+        project as ProjectInternal,
+    )
+    val java = project.components.getByName<AdhocComponentWithVariants>("java")
+    java.addVariantsFromConfiguration(kdocVariant, JavaConfigurationVariantMapping("runtime", true))
 }
 
 publishing {
@@ -131,8 +153,6 @@ publishing {
             artifactId = "foundation"
             version = project.version.toString()
             from(components["java"])
-            artifact(tasks["dokkaGenerateHtmlJar"])
-            artifact(tasks["dokkaGenerateHtmlAsJavadocJar"])
             versionMapping {
                 usage("java-api") {
                     fromResolutionOf("runtimeClasspath")
